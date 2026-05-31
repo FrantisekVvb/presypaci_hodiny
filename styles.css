@@ -5,27 +5,75 @@
 :root {
   --hourglass-base: min(
     calc((100vw - 96px) / 7),
-    calc((100vh - 100px) / 4),
+    calc((100vh - 200px) / 4),
     210px
   );
 }
 
-html,
-body {
-  overflow: hidden;
+html {
+  overflow-x: hidden;
 }
 
 body {
   margin: 0;
-  height: 100vh;
   min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   background: #fff;
   font-family: system-ui, -apple-system, sans-serif;
   padding: 24px;
+  padding-top: max(24px, env(safe-area-inset-top, 0px));
+  padding-bottom: max(24px, env(safe-area-inset-bottom, 0px));
+  gap: 20px;
+}
+
+.mode-switch {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #f5f5f5;
+}
+
+.mode-switch__btn {
+  border: none;
+  border-radius: 7px;
+  padding: 8px 16px;
+  background: transparent;
+  color: #333;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mode-switch__btn.is-active {
+  background: #fff;
+  color: #000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.mode-switch__btn:hover:not(.is-active) {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.stage--stopwatch {
+  width: 100%;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .stage {
@@ -36,6 +84,8 @@ body {
   justify-content: center;
   gap: 24px;
   max-width: 100%;
+  flex-shrink: 0;
+  padding-bottom: 4px;
 }
 
 .hourglass-unit {
@@ -64,6 +114,7 @@ body {
 
 .flip-btn {
   margin-top: 0;
+  flex-shrink: 0;
   height: 44px;
   padding: 0 16px;
   border: 1px solid #5a7aa8;
@@ -79,6 +130,9 @@ body {
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.2s, background 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .hourglass-unit--xlarge .flip-btn {
@@ -103,4 +157,99 @@ body {
 .flip-btn:disabled {
   opacity: 0.45;
   cursor: default;
+}
+
+.stopwatch {
+  width: min(calc(100vw - 48px), 834px);
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stopwatch-face svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stopwatch-laps {
+  max-height: min(40vh, 280px);
+  overflow-y: auto;
+  padding-left: 10px;
+}
+
+.stopwatch-lap {
+  font-family: "Courier New", Courier, monospace;
+  font-size: calc(min(calc(100vw - 48px), 834px) * 20 / 468);
+  font-weight: 700;
+  line-height: 1.8;
+  letter-spacing: 0.02em;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stopwatch-btn {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.stopwatch-btn:hover {
+  fill: rgba(0, 0, 0, 0.04);
+}
+
+#btn-start:hover {
+  fill: rgba(102, 201, 4, 0.08);
+}
+
+.stopwatch--running #btn-start:hover {
+  fill: rgba(204, 0, 0, 0.08);
+}
+
+.stopwatch-btn-label {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stopwatch-face svg text {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stopwatch-time {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.stopwatch-time--main {
+  font-size: 26px;
+}
+
+.stopwatch-time--lap {
+  font-size: 20px;
+}
+
+#pendulum {
+  transform-origin: 402.573px 9.573px;
+  animation: pendulum-swing 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes pendulum-swing {
+  from {
+    transform: rotate(-18deg);
+  }
+  to {
+    transform: rotate(18deg);
+  }
 }

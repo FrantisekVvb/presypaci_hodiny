@@ -135,6 +135,140 @@ function createHourglass(unitEl, { fallSpeed, flipSpeed, sandPalette }) {
   return { init };
 }
 
+function formatStopwatchTime(ms) {
+  const totalCentiseconds = Math.floor(ms / 10);
+  const centiseconds = totalCentiseconds % 100;
+  const totalSeconds = Math.floor(totalCentiseconds / 100);
+  const seconds = totalSeconds % 60;
+  const minutes = Math.floor(totalSeconds / 60);
+
+  const pad2 = (n) => String(n).padStart(2, '0');
+  return `${pad2(minutes)} : ${pad2(seconds)},${pad2(centiseconds)}`;
+}
+
+function createStopwatch(containerEl) {
+  const timeMainEl = containerEl.querySelector('#time-main');
+  const lapsListEl = containerEl.querySelector('#stopwatch-laps');
+  const btnStart = containerEl.querySelector('#btn-start');
+  const btnStartLabel = containerEl.querySelector('#btn-start-label');
+  const btnStopLabel = containerEl.querySelector('#btn-stop-label');
+  const btnLap = containerEl.querySelector('#btn-lap');
+  const btnReset = containerEl.querySelector('#btn-reset');
+
+  let running = false;
+  let elapsedMs = 0;
+  let startedAt = 0;
+  let rafId = null;
+  const laps = [];
+
+  function currentElapsed() {
+    return running ? elapsedMs + (performance.now() - startedAt) : elapsedMs;
+  }
+
+  function renderLaps() {
+    lapsListEl.replaceChildren();
+
+    laps.slice().reverse().forEach((lap) => {
+      const row = document.createElement('div');
+      row.className = 'stopwatch-lap';
+      row.textContent = lap;
+      lapsListEl.appendChild(row);
+    });
+  }
+
+  function renderTimes() {
+    timeMainEl.textContent = formatStopwatchTime(currentElapsed());
+  }
+
+  function tick() {
+    renderTimes();
+    if (running) rafId = requestAnimationFrame(tick);
+  }
+
+  function updateStartButton() {
+    btnStart.setAttribute('stroke', running ? '#CC0000' : '#66C904');
+    btnStartLabel.setAttribute('visibility', running ? 'hidden' : 'visible');
+    btnStopLabel.setAttribute('visibility', running ? 'visible' : 'hidden');
+  }
+
+  function setRunning(next) {
+    if (running && !next) {
+      elapsedMs += performance.now() - startedAt;
+    }
+
+    running = next;
+    containerEl.classList.toggle('stopwatch--running', running);
+    updateStartButton();
+
+    if (running) {
+      startedAt = performance.now();
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(tick);
+    } else {
+      cancelAnimationFrame(rafId);
+      renderTimes();
+    }
+  }
+
+  function onStart() {
+    setRunning(!running);
+  }
+
+  function onLap() {
+    if (!running) return;
+    laps.push(formatStopwatchTime(currentElapsed()));
+    renderLaps();
+  }
+
+  function onReset() {
+    if (running) setRunning(false);
+    elapsedMs = 0;
+    laps.length = 0;
+    renderLaps();
+    renderTimes();
+  }
+
+  btnStart.addEventListener('click', onStart);
+  btnLap.addEventListener('click', onLap);
+  btnReset.addEventListener('click', onReset);
+  renderTimes();
+}
+
+function initModeSwitch() {
+  const hourglassStage = document.querySelector('.stage--hourglass');
+  const stopwatchStage = document.querySelector('.stage--stopwatch');
+  const buttons = document.querySelectorAll('.mode-switch__btn');
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      buttons.forEach((b) => b.classList.toggle('is-active', b === btn));
+      hourglassStage.classList.toggle('hidden', mode !== 'hourglass');
+      stopwatchStage.classList.toggle('hidden', mode !== 'stopwatch');
+    });
+  });
+}
+
+function initStopwatch() {
+  const container = document.getElementById('stopwatch');
+
+  fetch('./assets/stopwatch.svg')
+    .then((r) => {
+      if (!r.ok) throw new Error('Soubor assets/stopwatch.svg nenalezen');
+      return r.text();
+    })
+    .then((svg) => {
+      container.innerHTML = `<div class="stopwatch-face">${svg}</div><div class="stopwatch-laps" id="stopwatch-laps"></div>`;
+      createStopwatch(container);
+    })
+    .catch((e) => {
+      console.error(e);
+    });
+}
+
+initModeSwitch();
+initStopwatch();
+
 fetch('./assets/hourglass.json')
   .then((r) => {
     if (!r.ok) throw new Error('Soubor assets/hourglass.json nenalezen');

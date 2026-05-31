@@ -1,7 +1,7 @@
 {
-  "name": "presypaci_hodiny",
+  "name": "mereni_casu",
   "version": "1.0.0",
-  "description": "Interaktivní animace přesýpacích hodin (Lottie)",
+  "description": "Měření času – přesýpací hodiny a stopky",
   "private": true,
   "scripts": {
     "dev": "live-server . --port=8766 --open=/index.html --wait=300"
