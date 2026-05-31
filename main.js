@@ -7,7 +7,7 @@ const FRAMES = {
   FALL2_END: 509,
 };
 
-const FLIP_SPEED = 1.5;
+const FLIP_SPEED = 3.375;
 
 const SAND_ORIGINAL = {
   primary: [1, 0.506, 0.345, 1],
